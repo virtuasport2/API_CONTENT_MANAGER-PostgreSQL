@@ -1,0 +1,18 @@
+Table,"Create Table"
+articolo,"CREATE TABLE `articolo` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `titolo` varchar(255) NOT NULL,
+  `sottotitolo` varchar(255) DEFAULT NULL,
+  `testo` text NOT NULL,
+  `categoria` varchar(100) DEFAULT NULL,
+  `data_creazione` datetime DEFAULT CURRENT_TIMESTAMP,
+  `stato_autorizzazione` varchar(50) DEFAULT 'bozza',
+  `visibilita` tinyint DEFAULT '0',
+  `autore_id` int DEFAULT NULL,
+  `documento_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `autore_id` (`autore_id`),
+  KEY `fk_articolo_documento` (`documento_id`),
+  CONSTRAINT `articolo_ibfk_1` FOREIGN KEY (`autore_id`) REFERENCES `utente` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_articolo_documento` FOREIGN KEY (`documento_id`) REFERENCES `documento` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"

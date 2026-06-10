@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il tuo titolo</title>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+	mermaid.initialize({
+		startOnLoad : true
+	});
+</script>
+
+  <style>
+    /* Container principale per posizionare il diagramma e il testo affiancati */
+    .container {
+      display: flex;
+      align-items: flex-start; /* Allinea gli elementi in alto */
+      justify-content: space-between; /* Distribuisce lo spazio tra i due elementi */
+    }
+
+    /* Contenitore del Diagramma Mermaid */
+    #diagram-container1 {
+      width: 45%;  /* Impostiamo la larghezza per il diagramma */
+      height: 240px;
+      border: 1px solid #ccc;  /* Aggiunge un bordo al diagramma per visibilità */
+      margin-right: 20px;  /* Spazio tra il diagramma e il testo */
+    }
+
+    #diagram-container2 {
+      width: 45%;  /* Impostiamo la larghezza per il diagramma */
+      height: 240px;
+      border: 1px solid #ccc;  /* Aggiunge un bordo al diagramma per visibilità */
+      margin-right: 20px;  /* Spazio tra il diagramma e il testo */
+    }
+    
+    #diagram-container3 {
+      width: 45%;  /* Impostiamo la larghezza per il diagramma */
+      height: 240px;
+      border: 1px solid #ccc;  /* Aggiunge un bordo al diagramma per visibilità */
+      margin-right: 20px;  /* Spazio tra il diagramma e il testo */
+    }    
+    
+    #diagram-container4 {
+      width: 45%;  /* Impostiamo la larghezza per il diagramma */
+      height: 240px;
+      border: 1px solid #ccc;  /* Aggiunge un bordo al diagramma per visibilità */
+      margin-right: 20px;  /* Spazio tra il diagramma e il testo */
+    }        
+    /* Contenitore del Testo */
+    #text-container {
+      width: 45%;  /* Impostiamo la larghezza per il testo */
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+
+
+</head>
+<body>
+	<header>
+		<!-- Contenuto dell'intestazione -->
+		<h1 class="centrato">MM</h1>
+		<nav>
+			<!-- Menu di navigazione -->
+			<ul>
+				<li><a href="indexSAP.html">Home</a> - indice</li>
+			</ul>
+		</nav>
+	</header>
+  <p class="centrato">Processi di Acquisto 'POSSIBILI' con SAP</p>
+  <div class="container">
+    <p>Emissione diretta e manuale dell'rdine di acquisto</p>
+    <!-- Contenitore del Diagramma Mermaid -->
+    <div id="diagram-container1" class="mermaid">
+    graph TD
+
+    OrdineDiAcquisto[<b>Ordine di Acquisto</b>]
+  </div> 
+
+    <p>Emissione da RDA</p>  
+    <div id="diagram-container2" class="mermaid">
+    graph TD
+    RichiestaDiAcquisto[<b>Richiesta di Acquisto</b>]   -->OrdineDiAcquisto[<b>Ordine di Acquisto</b>]
+    </div> 
+    
+    <p>Emissione da RDA con Richiesta(con eventuale emissione del CONTRATTO)</p> 
+    <div id="diagram-container3" class="mermaid">
+    graph TD
+
+    RichiestaDiAcquisto[<b>Richiesta di Acquisto</b>] -->|SI| RichiestaDiOfferta[<b>Richiesta di Offerta</b>]
+    RichiestaDiAcquisto[<b>Richiesta di Acquisto</b>] -->|NO| ContrattoDiAcquisto[<b>ContrattoDiAcquisto</b>]
+    ContrattoDiAcquisto[<b>ContrattoDiAcquisto</b>]   --> OrdineDiAcquisto[<b>Ordine di Acquisto</b>]
+    RichiestaDiOfferta[<b>Richiesta di Offerta</b>]   --> OrdineDiAcquisto[<b>Ordine di Acquisto</b>]
+  </div>	
+
+    <p>Emissione da RDA con Richiesta(con eventuale emissione del CONTRATTO)</p> 
+    <div id="diagram-container4" class="mermaid">
+    graph TD
+
+    Mandante[<b>Mandante</b>]     --> Società[<b>Società - unità organizzative</b>]
+    Società[<b>Società - unità organizzative</b>]              --> Divisione[<b>Divisione</b>]
+    Divisione[<b>Divisione</b>]   --> |SI| Magazzino[<b>1:n cardinalità - Magazzino</b>]
+    Divisione[<b>Divisione</b>]   --> GruppoAcquisti[<b>Gruppo Acquisti - operativo</b>]
+    GruppoAcquisti[<b>Gruppo Acquisti</b>] --> OrganizzazioneAcquisti[<b>Organizzazione Acquisti - strategico</b>]
+    OrganizzazioneAcquisti[<b>Organizzazione Acquisti - strategico</b>] --> Foritore[<b>Entità Esterna</b>]
+  
+    %% Riduzione delle dimensioni e dello spazio
+    style Mandante fill:#f9f,stroke:#333,stroke-width:1px,font-size:20px
+    style Società fill:#f9f,stroke:#333,stroke-width:1px,font-size:20px
+    style Divisione fill:#1ff,stroke:#333,stroke-width:1px,font-size:20px
+    style Magazzino fill:#f9f,stroke:#333,stroke-width:1px,font-size:20px
+    style GruppoAcquisti fill:#f9f,stroke:#333,stroke-width:1px,font-size:20px
+    style OrganizzazioneAcquisti fill:#f9f,stroke:#333,stroke-width:1px,font-size:20px
+    style Foritore fill:#f9f,stroke:#333,stroke-width:1px,font-size:20px   
+  
+  </div>	
+    <!-- Contenitore per il Testo (accanto al diagramma) -->
+    <div id="text-container">
+
+      <p> Tipi di RdA : a Magazzino , a Ordine (F),  a Cdc (K) </p>
+    </div>
+ </div>
+  	
+	<nav>
+		<!-- Menu di navigazione -->
+	</nav>
+
+
+	<main>
+		<p>nel Processo di Approvvigionamento
+		   i procedimenti contabili si riferiscono alle Registrazioni Finanziarie che riflettono le Operazioni di Acquisto e
+		   gestione delle Scorte</p>
+		 <p>Questi procedimenti Assicurano che tutte le transazioni siano correttamente Contabilizzate nei conti CO.GE</p>
+	     <p>FASI DI APPROVVIGIONAMENTO</p>
+	     <p>1) Oda me21n - anche se non si verifica una reg.contabile immediata l'ordine impegna il budget  </p>
+	     <p>2) EM  MIGO  - al ricevimento del materiale o servizio viene reg. un EM, aggiorna le scorte e genera una Registrazione 
+	           Contabile che Addebita il Conto delle Scorte (BSX) e Accredita il Conto delle ricezionie merci(GR/IR)</p>
+	     <p>3) EF  MIRO  - quando si riceve la fattura dal fornitore viene effettuata una Reg. che accredita il Conto Fornitore
+	                 e addebita il conto(GR/IR) good receipt e invoce receipt	
+	                 Eventuali differenze tra Oda e Fattura possono essere Registrati su Conti specifici</p>
+	     <p>4) Pagamento al Fornitore - comporta l'accredito del Conto Bancario e l'addebito del Conto Fornitore
+	           Chiudendo così il Ciclo Contabile</p>
+	</main>
+	<footer>
+		<!-- Informazioni del piè di pagina -->
+	</footer>
+</body>
+</html>

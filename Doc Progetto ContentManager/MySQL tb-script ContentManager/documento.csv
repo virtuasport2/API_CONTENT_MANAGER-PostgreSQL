@@ -1,0 +1,16 @@
+Table,"Create Table"
+documento,"CREATE TABLE `documento` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `tipo` varchar(100) NOT NULL,
+  `descrizione` text,
+  `struttura_json` json NOT NULL,
+  `creato_da` int DEFAULT NULL,
+  `tipo_documento_id` int DEFAULT NULL,
+  `stato` enum('bozza','pubblicato') DEFAULT 'bozza',
+  PRIMARY KEY (`id`),
+  KEY `creato_da` (`creato_da`),
+  KEY `fk_documento_tipo` (`tipo_documento_id`),
+  CONSTRAINT `documento_ibfk_1` FOREIGN KEY (`creato_da`) REFERENCES `utente` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_documento_tipo` FOREIGN KEY (`tipo_documento_id`) REFERENCES `tipo_documento` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"

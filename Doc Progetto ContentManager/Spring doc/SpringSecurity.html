@@ -1,0 +1,140 @@
+Sprin Security : Passi comuni tra JWT Filter e OAuth2 Login
+
+1- Configurare Spring Security → Definire la sicurezza dell'applicazione, specificando le richieste che richiedono autenticazione.
+2- Gestire l’autenticazione → Stabilire come gli utenti possono autenticarsi (tramite token JWT o OAuth2).
+3- Gestire l’autorizzazione → Controllare i permessi per l’accesso alle risorse.
+4- Gestire il contesto di sicurezza → Associare le richieste a un utente autenticato.
+5- Implementare i filtri di sicurezza → Intercettare le richieste per gestire l'autenticazione prima di raggiungere i controller.
+6- Configurare il meccanismo di logout → Permettere la revoca dell’autenticazione.
+
+
+<!-- 1. Configurare Spring Security -->
+L'obiettivo di questa fase è definire le regole di sicurezza dell’applicazione. Spring Security deve sapere:
+
+Quali richieste devono essere protette e quali no.
+Come gestire l’autenticazione degli utenti.
+Come applicare l’autorizzazione una volta autenticato l'utente.
+Passaggi logici
+1- Attivare Spring Security 	 			 → Spring Security è un filtro che intercetta tutte le richieste HTTP. Deve essere abilitato e configurato.
+2- Definire le regole di accesso 			 → Bisogna stabilire quali endpoint sono pubblici (es. /login, /register) e quali richiedono autenticazione.
+3- Abilitare il meccanismo di autenticazione → Specificare se l’app usa autenticazione basata su sessione, JWT o OAuth2.
+4- Gestire i filtri di sicurezza 			 → Spring Security utilizza una catena di filtri per applicare le regole di autenticazione e autorizzazione.
+
+
+Attivare Spring Security
+
+Spring Security è già incluso nel progetto se hai aggiunto la dipendenza nel pom.xml (Maven)  o build.gradle (Gradle).
+ Una volta incluso, il comportamento di default è:
+	1.	Tutte le richieste sono bloccate , Spring Security protegge tutti gli endpoint automaticamente.
+		Comportamento di default
+		-	Se provi ad accedere a qualsiasi API REST o pagina web, Spring Security risponde con <!--HTTP 401 (Unauthorized)--> ,
+		    oppure L'errore <!--HTTP 403 (Forbidden) --> indica che, anche se la richiesta è arrivata al server, 
+			l'autorizzazione non è concessa per accedere a quella risorsa. Questo può succedere per vari motivi, 
+			anche se la tua configurazione di Spring Security sembra impostata per permettere l'accesso non autenticato.
+		    se non hai effettuato l’autenticazione.
+			
+			Nota. #abilitare la registrazione dei log per vedere quali configurazioni di sicurezza vengono effettivamente applicate
+				
+				aggiungi nell'application.properties: 
+				                                       logging.level.org.springframework.security=DEBUG
+
+				Se preferisci avere i log in un file anziché sulla console, puoi configurare anche un apposito file di log aggiungendo questa configurazione:
+
+														logging.file.name=logs/application.log
+														logging.level.org.springframework.security=DEBUG
+
+
+		-	Se accedi tramite browser, viene mostrata una finestra di login base (HTTP Basic Authentication).
+		-	Se usi un client API (Postman, curl, ecc.), senza credenziali ottieni un errore di autenticazione.
+
+	2-	È attiva un'autenticazione di base , se non si configura nulla, Spring usa un login di default con un utente generato automaticamente.		
+		Questo accade perché, di default, Spring Security:
+		-	Blocca tutte le richieste 				→ Non puoi accedere agli endpoint senza autenticarti.
+		-	Abilita automaticamente un login Basic  → Se non configuri nulla, Spring genera un utente predefinito 
+													  con password casuale e richiede l’autenticazione per ogni richiesta.		
+	
+	
+	
+
+	
+Passaggi logici per attivarlo correttamente
+	1.	Aggiungere la dipendenza Spring Security  → Garantire che il modulo sia presente nel progetto.
+	2.	Creare una classe di configurazione		  → Definire esplicitamente come Spring Security deve comportarsi.
+	3.	Disabilitare il comportamento predefinito → Rimuovere il login automatico e bloccare le richieste solo dove necessario.
+	
+	1-	Aggiungere la dipendenza Spring Security con Maven, in un progetto Maven, la dipendenza va aggiunta nel file pom.xml 
+		all'interno della sezione <dependencies>.
+		
+		Aggiungi questa dipendenza nel tuo pom.xml:
+
+						<dependency>
+							<groupId>org.springframework.boot</groupId>
+							<artifactId>spring-boot-starter-security</artifactId>
+						</dependency>
+						
+						
+	2.	Creare una classe di configurazione, per implementare due modalità di autenticazione(tramite token JWT o OAuth2), 
+	    bisogna definire prima le regole di accesso per i vari endpoint della tua applicazione.	
+		
+		Stabilire le rotte pubbliche e protette
+		Dobbiamo decidere quali endpoint saranno accessibili senza autenticazione (pubblici) e quali richiedono l'autenticazione. 
+		Ecco un esempio di come potresti suddividere gli endpoint:
+
+		Endpoint pubblici:
+			- /login: La pagina di login, accessibile a chiunque.
+			- /register: La pagina di registrazione (se applicabile).
+			- /public-api/: API pubbliche accessibili senza autenticazione.
+			- /css/, /js/, /images/: Risorse statiche (CSS, JavaScript, immagini).
+			- /api/documenti: (Nel caso in cui tu voglia che tutti possano accedere alla lista dei documenti, 
+							 ma senza possibilità di modificare o aggiungere).
+		Endpoint protetti (richiedono autenticazione):
+		   - /api/documenti (POST, PUT, DELETE): Le operazioni di creazione, aggiornamento e cancellazione dei documenti.
+		   - Qualsiasi altro endpoint che gestisce risorse sensibili e che non deve essere accessibile senza autenticazione.
+		   
+package com.github.virtuasport2.memoriawebapp.configuration;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+
+
+			@Configuration
+			public class SecurityConfig {
+
+
+				@Bean
+				public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+					http
+						.authorizeHttpRequests(authorize -> authorize
+							// Permetti l'accesso pubblico per login, register, API pubbliche e risorse statiche
+							.requestMatchers("/login", "/register", "/public-api/**", "/css/**", "/js/**", "/images/**").permitAll()
+
+							// Proteggi le API documenti (solo gli utenti autenticati possono accedere a queste rotte)
+							.requestMatchers("/api/documenti/**").authenticated()
+							
+							// Altri endpoint protetti, se necessario
+						)
+						.formLogin(form -> form
+							.loginPage("/login")  // Imposta il percorso della pagina di login personalizzata (se necessario)
+							.defaultSuccessUrl("/", true) // Redirect alla home page dopo login
+							.permitAll()
+						)
+						.logout(logout -> logout
+							.logoutUrl("/logout")
+							.logoutSuccessUrl("/login?logout=true") // Redirect alla pagina di login dopo logout
+						)
+						.sessionManagement(session -> session
+							.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // Gestisci la sessione solo se necessario
+							.invalidSessionUrl("/login?invalid-session=true")  // URL da visitare se la sessione è scaduta
+							.maximumSessions(1)  // Numero massimo di sessioni per utente
+							.expiredUrl("/login?expired=true")  // URL di login quando la sessione scade
+						);
+					
+					return http.build();
+				}
+			}
+		
+		

@@ -1,0 +1,10 @@
+Table,"Create Table"
+tipo_documento,"CREATE TABLE `tipo_documento` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) NOT NULL,
+  `descrizione` text,
+  `creato_da` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `creato_da` (`creato_da`),
+  CONSTRAINT `tipo_documento_ibfk_1` FOREIGN KEY (`creato_da`) REFERENCES `utente` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"

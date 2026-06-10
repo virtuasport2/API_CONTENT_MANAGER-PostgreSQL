@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il tuo titolo</title>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+	mermaid.initialize({
+		startOnLoad : true
+	});
+</script>
+
+  <style>
+    /* Container principale per posizionare il diagramma e il testo affiancati */
+    .container {
+      display: flex;
+      align-items: flex-start; /* Allinea gli elementi in alto */
+      justify-content: space-between; /* Distribuisce lo spazio tra i due elementi */
+    }
+
+    /* Contenitore del Diagramma Mermaid */
+    #diagram-container {
+      width: 45%;  /* Impostiamo la larghezza per il diagramma */
+      height: 440px;
+      border: 1px solid #ccc;  /* Aggiunge un bordo al diagramma per visibilità */
+      margin-right: 20px;  /* Spazio tra il diagramma e il testo */
+    }
+
+    /* Contenitore del Testo */
+    #text-container {
+      width: 45%;  /* Impostiamo la larghezza per il testo */
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+
+
+</head>
+<body>
+	<header>
+		<!-- Contenuto dell'intestazione -->
+		<h1 class="centrato">SAP</h1>
+		<nav>
+			<!-- Menu di navigazione -->
+			<ul>
+				<li><a href="indexSAP.html">Home</a> - indice</li>
+			</ul>
+		</nav>
+	</header>
+
+  <div class="container">
+    <!-- Contenitore del Diagramma Mermaid -->
+    <div id="diagram-container" class="mermaid">
+graph TD
+    Mandante[<b>Mandante</b>] --> PianoDeiConti[<b>Piano dei Conti</b>]
+    PianoDeiConti --> ControllingArea[<b>Controlling Area</b>]
+    ControllingArea --> Società[<b>Società</b>]
+    Società --> SettoreContabile1[<b>SettoreContabile1</b>]
+    Società --> SettoreContabile2[<b>SettoreContabile2</b>]
+    Società --> SettoreContabile3[<b>SettoreContabile3</b>]
+
+    %% Riduzione delle dimensioni e dello spazio
+    style Mandante fill:#f9f,stroke:#333,stroke-width:1px,font-size:10px
+    style PianoDeiConti fill:#f9f,stroke:#333,stroke-width:1px,font-size:10px
+    style ControllingArea fill:#1ff,stroke:#333,stroke-width:1px,font-size:10px
+    style Società fill:#f9f,stroke:#333,stroke-width:1px,font-size:10px
+    style SettoreContabile1 fill:#f9f,stroke:#333,stroke-width:1px,font-size:10px
+    style SettoreContabile2 fill:#f9f,stroke:#333,stroke-width:1px,font-size:10px
+    style SettoreContabile3 fill:#f9f,stroke:#333,stroke-width:1px,font-size:10px   
+    
+
+  </div>	
+
+    <!-- Contenitore per il Testo (accanto al diagramma) -->
+    <div id="text-container">
+      <h2>Strutture Organizzative della Contabilità in SAP</h2>
+      
+        <p>FI/GL (Tipo 'S'  ossia Contabilità Generale    - Finance General Ledger      )</p>
+		<p>FI/AR (Tipo 'D'  cioè  Contabilità Clienti     - Finance Accounts Receivable )</p>
+		<p>FI/AP (Tipo 'K'  la    Contabilità Fornitori   - Finance Accounts Payable    )</p>
+    
+       <p>La divisione in settori contabili (Settore Contabile 1, 2, 3)</p>
+       <p> consentono di separare e gestire in modo efficiente le diverse aree aziendali</p>
+       <p>e i relativi flussi finanziari</p>
+       <p> e produrre un bilancio</p>
+      
+       <p>Il conto CO.GE è uno strumento  utilizzato per REGISTRARE tutte le transazioni economiche come:</p>
+       <p>Vendite, Acquisti , Spese , e vengono annotate in Conti specifici permettendo di monitorare 
+          Entrate/Uscite</p>
+    </div>
+ </div>
+  	
+	<nav>
+		<!-- Menu di navigazione -->
+	</nav>
+
+
+	<main>
+		<!-- Contenuto principale -->
+	</main>
+	<footer>
+		<!-- Informazioni del piè di pagina -->
+	</footer>
+</body>
+</html>

@@ -1,0 +1,26 @@
+Configurare Visual Studio Code
+
+Cosa fare per sviluppare il frontend con VS Code:
+Installazione di VS Code:
+
+Se non l'hai già fatto, puoi scaricare e installare Visual Studio Code (VS Code) gratuitamente dal sito ufficiale.
+Estensioni utili:
+
+HTML, CSS, JavaScript: VS Code supporta nativamente HTML, CSS e JavaScript, quindi puoi iniziare a scrivere il codice direttamente.
+REST Client (opzionale): Se vuoi testare le tue API REST direttamente dentro VS Code, puoi installare l'estensione REST Client che 
+ti permette di inviare richieste HTTP senza uscire dall'IDE.
+Debugger per JavaScript: Se scrivi JavaScript, l'IDE supporta il debugging integrato per il frontend.
+Prettier o ESLint: Se vuoi avere il codice ben formattato, puoi installare queste estensioni che ti aiutano a mantenere uno stile di codice coerente.
+Connessione con l'API REST:
+
+Consumo API: Puoi usare JavaScript (ad esempio fetch o axios) per fare chiamate HTTP alla tua API REST (che gira su Spring). 
+Queste chiamate saranno fatte dal frontend (sviluppato in VS Code) al backend (Spring su Tomcat).
+Avvio del server:
+
+L'API REST sarà in esecuzione su Tomcat (integrato con Spring). Puoi avviare il backend normalmente. 
+Quando avvii il backend, sarà disponibile per le chiamate HTTP dal tuo frontend, che verrà servito separatamente.
+Non è necessario che VS Code ospiti il backend; puoi eseguire il frontend dal tuo filesystem o da un server statico 
+(per esempio, se usi http-server in Node.js per testare i file statici).
+
+Vai alla barra laterale delle estensioni (icona quadrata nella barra laterale sinistra, oppure premi Ctrl + Shift + X).
+Per formattare manualmente un file, puoi premere Shift + Alt + F

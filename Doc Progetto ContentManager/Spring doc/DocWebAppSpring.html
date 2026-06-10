@@ -1,0 +1,401 @@
+
+In Notepad++:
+Commento su una riga (--) → Ctrl + Q
+Commento multi-linea (/* ... */) → Shift + Ctrl + Q
+
+-- 1) creazione tabella documento 
+Tabella MySQL
+CREATE TABLE documento (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    tipo VARCHAR(100) NOT NULL,
+    descrizione TEXT,
+    struttura_json JSON NOT NULL,
+    creato_da INT,                                  -- Relazione con la tabella utente
+    FOREIGN KEY (creato_da) REFERENCES utente(id)
+    ON UPDATE CASCADE 
+    ON DELETE SET NULL
+);
+
+-- 2) creazione classe entity Documento 
+
+/* Ecco la classe entity per Spring Boot usando JPA e Hibernate:
+  
+   Questa classe usa Lombok per ridurre il codice boilerplate e JPA per mappare la tabella. 
+   Assicurati che la classe `Utente` sia definita correttamente nel progetto. 
+*/
+
+
+
+package com.github.virtuasport2.memoriawebapp.model;
+
+import jakarta.persistence.*;
+//import lombok.Getter;
+//import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonRawValue;
+
+@Entity
+@Table(name = "documento")
+//@Getter
+//@Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)  /* Per includere solo i campi non nulli */
+public class Documento {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 255)
+    private String nome;
+
+    @Column(nullable = false, length = 100)
+    private String tipo;
+
+    @Column(columnDefinition = "TEXT")
+    private String descrizione;
+
+    @Column(columnDefinition = "JSON", nullable = false)
+    @JsonRawValue
+    private String strutturaJson;
+
+    @ManyToOne
+    @JoinColumn(name = "creato_da", referencedColumnName = "id")
+    @OnDelete(action = OnDeleteAction.SET_NULL) /* Imposta l'azione di delete su SET_NULL */
+    @JsonIgnore
+    private Utente creatoDa;
+    
+    Lombok non sempre generete tutti i getter e setter ,da vedere perchè, li aggiungo manualmente     
+   
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public String getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(String tipo) {
+		this.tipo = tipo;
+	}
+
+	public String getDescrizione() {
+		return descrizione;
+	}
+
+	public void setDescrizione(String descrizione) {
+		this.descrizione = descrizione;
+	}
+
+	public Utente getCreatoDa() {
+		return creatoDa;
+	}
+
+	public void setCreatoDa(Utente creatoDa) {
+		this.creatoDa = creatoDa;
+	}
+
+	public String getStrutturaJson() {
+        return strutturaJson;
+    }  
+    
+	@Override
+	public String toString() {
+		return "Documento [id=" + id + ", nome=" + nome + ", tipo=" + tipo + ", descrizione=" + descrizione
+				+ ", strutturaJson=" + strutturaJson + ", creatoDa=" + creatoDa + "]";
+	}
+
+}
+
+/*  Nota: ho asteriscato Lombok perché al contrario dei metodi di ricerca come getAll.. ,get..ById, nel salvataggio
+    con il quale uso 
+	    public Documento saveDocumento(Documento documento) {
+        return documentoRepository.save(documento);
+    }
+
+	non trovo i Setter e Getter utilizzati ne li trovo scrivendo documento.nomeMetodo e i campi passati dal client rimangono NULL 
+
+	Lombok è una libreria per Java che riduce il codice boilerplate, ossia il codice ripetitivo e ridondante. 
+	In questo caso, le annotazioni @Getter e @Setter generano automaticamente i metodi get e set per tutti i campi della classe, 
+	evitando di scriverli manualmente.
+
+	Se non vuoi usare Lombok, devi scrivere esplicitamente i metodi getter e setter per ogni campo. 
+	Se non hai ancora Lombok nel progetto, devi aggiungerlo nel pom.xml se usi Maven:
+*/
+<dependency>
+    <groupId>org.projectlombok</groupId>
+    <artifactId>lombok</artifactId>
+    <version>1.18.30</version>
+    <scope>provided</scope>
+</dependency>
+
+
+
+
+-- 3) Per creare la        -- Controller,   -- Service e   -- Repository 
+     /* in un'applicazione Spring Boot, segui questi passi: */
+
+
+--  Repository:
+
+/*Inizia con la creazione di un'interfaccia che estende JpaRepository (o CrudRepository) per la classe Documento. Questa interfaccia si occuperà delle operazioni CRUD di base.
+Definisci eventuali metodi personalizzati di ricerca o manipolazione dei dati, se necessario.
+Service:
+
+Crea una classe di servizio che si occupi della logica di business.
+All'interno del servizio, inietta il repository per interagire con il database.
+Aggiungi metodi per gestire le operazioni su Documento, come creare, leggere, aggiornare e cancellare, se necessario.
+Controller:
+
+Crea una classe di controller che espone le API REST per interagire con l'utente o con altre applicazioni.
+Aggiungi endpoint come GET, POST, PUT, e DELETE per gestire le risorse Documento.
+Inietta il servizio nel controller per delegare la logica di business.
+Iniziare con il Repository è la parte fondamentale perché fornisce l'accesso ai dati, da cui il Service e poi il Controller dipenderanno. */
+
+@Repository
+public interface DocumentoRepository extends JpaRepository<Documento, Integer> {
+    // Aggiungi metodi personalizzati se necessario, ad esempio:
+    // Optional<Documento> findByNome(String nome);
+}
+
+/* Spiegazione:
+
+Documento è il tipo dell'entità che il repository gestisce.
+Integer è il tipo della chiave primaria dell'entità (nel tuo caso, id è di tipo Integer).
+JpaRepository fornisce tutte le operazioni CRUD di base senza bisogno di implementare nulla, come save(), findById(), findAll(), delete(), ecc.
+Se desideri aggiungere query personalizzate, puoi definirle direttamente nel repository con l'uso di metodi derivati o annotazioni come @Query. */
+
+
+--  Service
+
+package com.github.virtuasport2.memoriawebapp.service;
+
+import org.springframework.stereotype.Service;
+
+import com.github.virtuasport2.memoriawebapp.model.Documento;
+import com.github.virtuasport2.memoriawebapp.repository.DocumentoRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class DocumentoService {
+
+    private final DocumentoRepository documentoRepository;
+
+  
+    public DocumentoService(DocumentoRepository documentoRepository) {
+        this.documentoRepository = documentoRepository;
+    }
+
+    public List<Documento> getAllDocumenti() {
+        return documentoRepository.findAll();
+    }
+
+    public Optional<Documento> getDocumentoById(Long id) {
+        return documentoRepository.findById(id);
+   
+        		
+    }
+
+    public Documento saveDocumento(Documento documento) {
+        return documentoRepository.save(documento);
+    }
+
+    public void deleteDocumento(Long id) {
+        documentoRepository.deleteById(id);
+
+    }
+
+}
+
+
+/*
+Spiegazione:
+				getAllDocumenti(): Recupera tutti i documenti dal database.
+				getDocumentoById(Integer id): Trova un documento tramite l'ID (restituisce un Optional).
+				saveDocumento(Documento documento): Salva un nuovo documento o aggiorna uno esistente.
+				deleteDocumento(Integer id): Elimina un documento dato il suo ID.
+*/
+
+
+-- Controller
+
+
+/* Separare il front-end dal back-end è una buona pratica. Ora creiamo un Controller REST per l'entità Documento.
+
+	Passaggi:
+	1- Crea la classe DocumentoController nel pacchetto dei controller.
+	2- Annota la classe con @RestController e imposta il mapping base con @RequestMapping("/api/documenti").
+	3- Inietta DocumentoService per gestire la logica di business.
+	4- Definisci gli endpoint CRUD (GET, POST, PUT, DELETE). */
+	
+
+package com.github.virtuasport2.memoriawebapp.controller;
+
+import org.springframework.web.bind.annotation.*;
+
+import com.github.virtuasport2.memoriawebapp.model.Documento;
+import com.github.virtuasport2.memoriawebapp.service.DocumentoService;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api/documenti")
+public class DocumentoController {
+
+    private final DocumentoService documentoService;
+
+    public DocumentoController(DocumentoService documentoService) {
+        this.documentoService = documentoService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Documento>> getAllDocumenti() {
+        List<Documento> documenti = documentoService.getAllDocumenti();
+        
+        if (documenti.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204 No Content se la lista è vuota
+        }
+    /* solo per i test
+        // Stampa l'oggetto prima del return
+       //  System.out.println("Documento trovato: " + documenti);
+        
+    
+    */
+        return ResponseEntity.ok(documenti);
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Documento> getDocumentoById(@PathVariable Long id) {
+        Optional<Documento> documento = documentoService.getDocumentoById(id);
+        		
+        return documento.map(ResponseEntity::ok)
+                        .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    public ResponseEntity<Documento> createDocumento(@RequestBody Documento documento) {
+    	// solo in fase di test
+        // Verifica i valori ricevuti
+        System.out.println("Nome: " + documento.getNome());
+        System.out.println("Tipo: " + documento.getTipo());
+        System.out.println("Struttura JSON: " + documento.getStrutturaJson());    	
+    	
+        Documento savedDocumento = documentoService.saveDocumento(documento);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedDocumento);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Documento> updateDocumento(@PathVariable Long id, @RequestBody Documento documento) {
+        if (!documentoService.getDocumentoById(id).isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        documento.setId(id);
+        Documento updatedDocumento = documentoService.saveDocumento(documento);
+        return ResponseEntity.ok(updatedDocumento);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDocumento(@PathVariable Long id) {
+        if (!documentoService.getDocumentoById(id).isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        documentoService.deleteDocumento(id);
+        return ResponseEntity.noContent().build();
+    }
+}
+
+
+/* Nota: ho cambiato per Id tipo Integer con Long
+   L'errore "The method setId(Integer) is undefined for the type Documento" 
+   indica che nella tua classe Documento manca il metodo setId(Integer id). 
+   Questo accade perché stai utilizzando @Getter e @Setter di Lombok, 
+   che generano automaticamente i metodi getter e setter per tutti i campi, 
+   tranne che per i campi annotati con @Id e @GeneratedValue, per evitare modifiche accidentali alla chiave primaria.
+
+Soluzione
+Puoi risolvere il problema in due modi:
+
+Opzione 1: Aggiungere manualmente il setter per id
+		   Aggiorna la classe Documento aggiungendo un metodo setId() esplicitamente: */
+
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+
+
+/* Opzione 2: Usare un costruttore o una copia dell'oggetto
+		      Se non vuoi permettere la modifica diretta dell'ID, puoi creare una nuova istanza di Documento con i dati aggiornati e salvarla. 
+              Ad esempio, nel updateDocumento() del Controller: */
+
+	@PutMapping("/{id}")
+	public ResponseEntity<Documento> updateDocumento(@PathVariable Integer id, @RequestBody Documento documento) {
+		return documentoService.getDocumentoById(id)
+			.map(existingDoc -> {
+				Documento updatedDoc = new Documento();
+				updatedDoc.setId(id); // Aggiungi il metodo o usa un costruttore
+				updatedDoc.setNome(documento.getNome());
+				updatedDoc.setTipo(documento.getTipo());
+				updatedDoc.setDescrizione(documento.getDescrizione());
+				updatedDoc.setStrutturaJson(documento.getStrutturaJson());
+				updatedDoc.setCreatoDa(documento.getCreatoDa());
+				return ResponseEntity.ok(documentoService.saveDocumento(updatedDoc));
+			})
+			.orElseGet(() -> ResponseEntity.notFound().build());
+	}
+
+
+-- Spiegazione:
+/*
+	- **`@RestController`** → Definisce il controller come REST.  
+	- **`@RequestMapping("/api/documenti")`** → Base path per le API REST.  
+	- **`@GetMapping`** → Recupera tutti i documenti o uno specifico per ID.  
+	- **`@PostMapping`** → Crea un nuovo documento.  
+	- **`@PutMapping`** → Aggiorna un documento esistente.  
+	- **`@DeleteMapping`** → Cancella un documento per ID.  
+
+Ora hai il **controller REST** pronto per gestire le richieste HTTP. 🚀 */
+
+Test con Client REST
+
+	URL : http://localhost:8080/api/documenti
+	
+												@RestController
+												@RequestMapping("/api/documenti")
+												public class DocumentoController {
+    metodo GET :                                              esempio:
+				     getAllDocumenti() 					    	         /* : http://localhost:8080/api/documenti   */
+				     getDocumentoById(@PathVariable Long id)             /* : http://localhost:8080/api/documenti/1 */
+		  
+	       POST :    createDocumento(@RequestBody Documento documento)  /*  : http://localhost:8080/api/documenti*/
+		             Headers:  Name  : Content-Type
+                               Value : application/json		
+                     Request body: 
+							{
+							  "nome": "Documento 1",
+							  "tipo": "PDF",
+							  "descrizione": "Questo è un esempio di documento",
+							  "strutturaJson": "{\"chiave\":\"valore\"}",
+							  "creatoDa": {
+								"id": 1
+							  }
+							}					 
