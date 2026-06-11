@@ -51,7 +51,8 @@ public class UtenteController {
         utente.setUsername(request.getUsername());
         utente.setEmail(request.getEmail()); // Verifica che email non sia null
         utente.setEmail(request.getEmail()); // Verifica che email non sia null
-    	 if (utente.getRuolo() == null) {  //utente.setRuolo(request.getRuolo());
+		//utente.setRuolo(request.getRuolo());
+    	 if (utente.getRuolo() == null) { 
            utente.setRuolo(Ruolo.user);
         }
         String password = request.getPassword();
