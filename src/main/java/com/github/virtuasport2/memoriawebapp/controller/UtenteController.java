@@ -1,6 +1,7 @@
 package com.github.virtuasport2.memoriawebapp.controller;
 
 import com.github.virtuasport2.memoriawebapp.dto.UtenteRequest;
+import com.github.virtuasport2.memoriawebapp.enums.Ruolo;
 import com.github.virtuasport2.memoriawebapp.model.Utente;
 import com.github.virtuasport2.memoriawebapp.service.UtenteService;
 import org.springframework.http.HttpStatus;
