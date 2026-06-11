@@ -50,7 +50,10 @@ public class UtenteController {
         Utente utente = new Utente();
         utente.setUsername(request.getUsername());
         utente.setEmail(request.getEmail()); // Verifica che email non sia null
-        utente.setRuolo(request.getRuolo());
+        utente.setEmail(request.getEmail()); // Verifica che email non sia null
+    	 if (utente.getRuolo() == null) {  //utente.setRuolo(request.getRuolo());
+           utente.setRuolo(Ruolo.user);
+        }
         String password = request.getPassword();
         
         // Cripta la password prima di salvarla
