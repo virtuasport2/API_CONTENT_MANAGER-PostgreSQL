@@ -1,5 +1,6 @@
 package com.github.virtuasport2.memoriawebapp.controller;
 
+import com.github.virtuasport2.memoriawebapp.dto.ArticoloRequest;
 import com.github.virtuasport2.memoriawebapp.model.Articolo;
 import com.github.virtuasport2.memoriawebapp.service.ArticoloService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +29,14 @@ public class ArticoloController {
         return articolo.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
+    /* @PostMapping
     public ResponseEntity<Articolo> createArticolo(@RequestBody Articolo articolo) {
         return new ResponseEntity<>(articoloService.save(articolo), HttpStatus.CREATED);
+    } */
+
+    @PostMapping
+    public ResponseEntity<Articolo> createArticolo(@RequestBody ArticoloRequest request) {
+        return new ResponseEntity<>(articoloService.save(request), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")

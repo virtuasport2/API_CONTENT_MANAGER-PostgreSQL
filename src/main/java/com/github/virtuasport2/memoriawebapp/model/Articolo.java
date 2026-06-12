@@ -3,12 +3,10 @@ package com.github.virtuasport2.memoriawebapp.model;
 import jakarta.persistence.*;
 //import lombok.NoArgsConstructor;
 
-
 import java.time.LocalDateTime;
 
-@Entity
 @Table(name = "articolo")
-//@NoArgsConstructor
+// @NoArgsConstructor
 
 public class Articolo {
 
@@ -51,6 +49,18 @@ public class Articolo {
     public String toString() {
         return "Articolo [id=" + id + ", titolo=" + titolo + ", sottotitolo=" + sottotitolo + ", testo=" + testo
                 + ", categoria=" + categoria + ", dataCreazione=" + dataCreazione + ", statoAutorizzazione="
-                + statoAutorizzazione + ", visibilita=" + visibilita + ", autore=" + autore + ", documento=" + documento + "]";
+                + statoAutorizzazione + ", visibilita=" + visibilita + ", autore=" + autore + ", documento=" + documento
+                + "]";
     }
+
+    
+    
+    public String getSottotitolo() {
+        return sottotitolo;
+    }
+
+    public void setSottotitolo(String sottotitolo) {
+        this.sottotitolo = sottotitolo;
+    }
+
 }
