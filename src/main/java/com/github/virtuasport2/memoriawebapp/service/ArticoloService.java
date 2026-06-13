@@ -6,12 +6,15 @@ import com.github.virtuasport2.memoriawebapp.model.Documento;
 import com.github.virtuasport2.memoriawebapp.model.Utente;
 import com.github.virtuasport2.memoriawebapp.repository.ArticoloRepository;
 import com.github.virtuasport2.memoriawebapp.repository.UtenteRepository;
+import com.github.virtuasport2.memoriawebapp.repository.DocumentoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
+import javax.sql.DataSource;
 
 @Service
 public class ArticoloService {
@@ -24,6 +27,12 @@ public class ArticoloService {
 
     @Autowired
     private DocumentoRepository documentoRepo;
+
+    private final DataSource dataSource;
+
+    public ArticoloService(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     public List<Articolo> findAll() {
         return articoloRepository.findAll();
@@ -38,6 +47,16 @@ public class ArticoloService {
     }
 
     public Articolo save(ArticoloRequest request) {
+
+        try {
+            System.out.println(
+                    dataSource.getConnection().getMetaData().getURL());
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Utente u = utenteRepo.findById(request.getAutoreId())
                 .orElseThrow(() -> new RuntimeException("Utente non trovato"));
@@ -56,7 +75,7 @@ public class ArticoloService {
         a.setAutore(u);
         a.setDocumento(d);
 
-        return articoloRepo.save(a);
+        return articoloRepository.save(a);
     }
 
     public void deleteById(Long id) {

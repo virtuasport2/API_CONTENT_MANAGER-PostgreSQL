@@ -10,7 +10,7 @@ import com.github.virtuasport2.memoriawebapp.model.Documento;
 @Repository
 public interface DocumentoRepository extends JpaRepository<Documento, Long> {
 
-	Optional<Documento> findById(Long id);
+	//Optional<Documento> findById(Long id);
     // Aggiungi metodi personalizzati se necessario, ad esempio:
     // Optional<Documento> findByNome(String nome);
 }

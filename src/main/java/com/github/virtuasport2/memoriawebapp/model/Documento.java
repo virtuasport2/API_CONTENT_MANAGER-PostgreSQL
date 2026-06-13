@@ -18,55 +18,55 @@ import com.github.virtuasport2.memoriawebapp.enums.Stato;
 
 @Entity
 @Table(name = "documento")
-//@Getter
-//@Setter
-@JsonInclude(JsonInclude.Include.NON_NULL)  // Per includere solo i campi non nulli
+// @Getter
+// @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL) // Per includere solo i campi non nulli
 public class Documento {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false, length = 255)
-    private String nome;
+	@Column(nullable = false, length = 255)
+	private String nome;
 
-    @Column(nullable = false, length = 100)
-    private String tipo;
+	@Column(nullable = false, length = 100)
+	private String tipo;
 
-    @Column(columnDefinition = "TEXT")
-    private String descrizione;
+	@Column(columnDefinition = "TEXT")
+	private String descrizione;
 
-    @Column(columnDefinition = "JSON", nullable = false)
-    @JsonRawValue
-    private String strutturaJson;
+	@Column(columnDefinition = "json")
+	@org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+	private String strutturaJson;
 
-    @ManyToOne
-    @JoinColumn(name = "creato_da", referencedColumnName = "id")
-    @OnDelete(action = OnDeleteAction.SET_NULL) // Imposta l'azione di delete su SET_NULL
-    @JsonIgnore
-    private Utente creatoDa;
+	@ManyToOne
+	@JoinColumn(name = "creato_da", referencedColumnName = "id")
+	@OnDelete(action = OnDeleteAction.SET_NULL) // Imposta l'azione di delete su SET_NULL
+	@JsonIgnore
+	private Utente creatoDa;
 
-    @ManyToOne
-    @JoinColumn(name = "tipo_id", referencedColumnName = "id",nullable = false)
-    @NotNull(message = "Il tipo documento è obbligatorio")
-    private TipoDocumento tipoDocumento;
+	@ManyToOne
+	@JoinColumn(name = "tipo_id", referencedColumnName = "id", nullable = false)
+	@NotNull(message = "Il tipo documento è obbligatorio")
+	private TipoDocumento tipoDocumento;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Stato stato;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private Stato stato;
 
-    @OneToMany(mappedBy = "documento")
-    @JsonIgnore
-    private List<Articolo> articoli;  
-    
-//  Lombok non sempre generete tutti i getter e setter ,da vedere perchè, li aggiungo manualmente     
-   
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
+	@OneToMany(mappedBy = "documento")
+	@JsonIgnore
+	private List<Articolo> articoli;
 
-    public String getNome() {
+	// Lombok non sempre generete tutti i getter e setter ,da vedere perchè, li
+	// aggiungo manualmente
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getNome() {
 		return nome;
 	}
 
@@ -99,11 +99,13 @@ public class Documento {
 	}
 
 	public String getStrutturaJson() {
-        return strutturaJson;
-    }  
-    
-	
-	
+		return strutturaJson;
+	}
+
+	public void setStrutturaJson(String strutturaJson) {
+		this.strutturaJson = strutturaJson;
+	}
+
 	public TipoDocumento getTipoDocumento() {
 		return tipoDocumento;
 	}
@@ -134,6 +136,5 @@ public class Documento {
 				+ ", strutturaJson=" + strutturaJson + ", creatoDa=" + creatoDa + ", tipoDocumento=" + tipoDocumento
 				+ ", stato=" + stato + ", articoli=" + articoli + "]";
 	}
-
 
 }
