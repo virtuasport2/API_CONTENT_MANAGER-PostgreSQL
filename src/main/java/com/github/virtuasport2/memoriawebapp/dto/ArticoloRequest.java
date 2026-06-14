@@ -23,9 +23,6 @@ public class ArticoloRequest {
     private String sottotitolo;
     private String testo;
     private String categoria;
-
-    /*private Long autoreId; */
-    
     private Long documentoId; // può essere null
 
     public String getTitolo() {
@@ -60,13 +57,7 @@ public class ArticoloRequest {
         this.categoria = categoria;
     }
 
-    public Long getAutoreId() {
-        return autoreId;
-    }
-
-    public void setAutoreId(Long autoreId) {
-        this.autoreId = autoreId;
-    }
+   
 
     public Long getDocumentoId() {
         return documentoId;
