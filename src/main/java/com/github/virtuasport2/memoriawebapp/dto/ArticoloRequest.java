@@ -24,7 +24,8 @@ public class ArticoloRequest {
     private String testo;
     private String categoria;
 
-    private Long autoreId;
+    /*private Long autoreId; */
+    
     private Long documentoId; // può essere null
 
     public String getTitolo() {

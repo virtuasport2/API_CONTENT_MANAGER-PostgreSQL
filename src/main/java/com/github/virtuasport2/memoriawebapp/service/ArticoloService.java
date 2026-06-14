@@ -9,6 +9,7 @@ import com.github.virtuasport2.memoriawebapp.repository.UtenteRepository;
 import com.github.virtuasport2.memoriawebapp.repository.DocumentoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,13 +53,20 @@ public class ArticoloService {
             System.out.println(
                     dataSource.getConnection().getMetaData().getURL());
 
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Utente u = utenteRepo.findById(request.getAutoreId())
+        /*
+         * AutoreId non deve essere passato dal client, perché l'autore è l'utente loggato.
+        *  non devo usare findById perché non ho l'id dell'utente loggato, ma il suo username. Quindi devo usare findByUsername.  
+         * Utente u = utenteRepo.findById(request.getAutoreId())
+         * .orElseThrow(() -> new RuntimeException("Utente non trovato"));
+         */
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Utente u = utenteRepo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Utente non trovato"));
 
         Documento d = null;
