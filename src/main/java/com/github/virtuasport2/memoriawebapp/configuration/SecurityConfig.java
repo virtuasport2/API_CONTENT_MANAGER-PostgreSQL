@@ -106,7 +106,8 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "https://frontendcontentmanager-postgresql.onrender.com"));
+                "https://frontendcontentmanager-postgresql.onrender.com",
+                "https://frontendcontentmanager-postgresql-test.onrender.com"));
 
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
