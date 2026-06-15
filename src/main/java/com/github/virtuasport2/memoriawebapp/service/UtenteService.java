@@ -80,8 +80,11 @@ public Utente verifyEmail(String email) {
 
         //System.out.println("Risultato query: " + userOpt);
         
-    	Utente utente = utenteRepository.findByEmail(email).get();
-        if (utente != null) {
+    	//Utente utente = utenteRepository.findByEmail(email).get();
+    // errore registrazione 
+    Utente utente = utenteRepository.findByEmail(email)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Email not found"));
+     if (utente != null) {
  
         	System.out.println("Password inserita: " + password);
         	System.out.println("Hash generato al momento: " + passwordEncoder.encode(password));
