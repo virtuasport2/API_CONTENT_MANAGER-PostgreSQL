@@ -24,6 +24,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.config.Customizer;
 
+import java.util.List;
+
 //Indica a Spring che questa classe contiene delle configurazioni
 @Configuration
 // Abilita il supporto di Spring Security per l'applicazione web
@@ -89,18 +91,22 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Questo bean serve a definire esplicitamente le regole CORS lato backend Spring.
-    /* 
-    1- Dice da quale frontend è permesso chiamare il backend
-    2- Permette tutti i metodi HTTP
-    3- Permette tutti gli header
-    4- Permette cookie / auth condivisa
-    */
+    // Questo bean serve a definire esplicitamente le regole CORS lato backend
+    // Spring.
+    /*
+     * 1- Dice da quale frontend è permesso chiamare il backend
+     * 2- Permette tutti i metodi HTTP
+     * 3- Permette tutti gli header
+     * 4- Permette cookie / auth condivisa
+     */
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
 
-        config.addAllowedOrigin("https://frontendcontentmanager-postgresql.onrender.com");
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "https://frontendcontentmanager-postgresql.onrender.com"));
+
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");
         config.setAllowCredentials(true);
