@@ -44,7 +44,7 @@ public class SecurityConfig {
                 // token (JWT)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .logout(logout -> logout.disable()) // Disabilita il LogoutFilter di Spring
 
@@ -87,6 +87,28 @@ public class SecurityConfig {
 
         // Costruisce e restituisce la SecurityFilterChain configurata
         return http.build();
+    }
+
+    // Questo bean serve a definire esplicitamente le regole CORS lato backend Spring.
+    /* 
+    1- Dice da quale frontend è permesso chiamare il backend
+    2- Permette tutti i metodi HTTP
+    3- Permette tutti gli header
+    4- Permette cookie / auth condivisa
+    */
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
+
+        config.addAllowedOrigin("https://frontendcontentmanager-postgresql.onrender.com");
+        config.addAllowedMethod("*");
+        config.addAllowedHeader("*");
+        config.setAllowCredentials(true);
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     // Definisce un bean di tipo PasswordEncoder che utilizza BCrypt
