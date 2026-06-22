@@ -8,7 +8,7 @@ private String tipo;
 private String descrizione;
 private String strutturaJson;
 
-Long creatoDaId;
+
 Long tipoDocumentoId;
 
 private String stato;
@@ -48,13 +48,7 @@ public void setStrutturaJson(String strutturaJson) {
     this.strutturaJson = strutturaJson;
 }
 
-public Long getCreatoDaId() {
-    return creatoDaId;
-}
 
-public void setCreatoDaId(Long creatoDaId) {
-    this.creatoDaId = creatoDaId;
-}
 
 public Long getTipoDocumentoId() {
     return tipoDocumentoId;

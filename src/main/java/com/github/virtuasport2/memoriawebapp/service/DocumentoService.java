@@ -13,6 +13,9 @@ import com.github.virtuasport2.memoriawebapp.repository.DocumentoRepository;
 import com.github.virtuasport2.memoriawebapp.repository.TipoDocumentoRepository;
 import com.github.virtuasport2.memoriawebapp.repository.UtenteRepository;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -44,61 +47,55 @@ public class DocumentoService {
 
     }
 
-public Documento saveDocumento(DocumentoRequest request) {
+    public Documento saveDocumento(DocumentoRequest request) {
 
-    if (request.getCreatoDaId() == null) {
-        throw new RuntimeException("creatoDaId mancante");
+        if (request.getTipoDocumentoId() == null) {
+            throw new RuntimeException("tipoDocumentoId mancante");
+        }
+
+        TipoDocumento td = tipoDocumentoRepo.findById(request.getTipoDocumentoId())
+                .orElseThrow(() -> new RuntimeException("Tipo documento non trovato"));
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        Utente u = utenteRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utente non trovato"));
+
+        Documento d = new Documento();
+        d.setNome(request.getNome());
+        d.setTipo(request.getTipo());
+        d.setDescrizione(request.getDescrizione());
+        d.setStrutturaJson(request.getStrutturaJson());
+
+        d.setCreatoDa(u);
+        d.setTipoDocumento(td);
+        d.setStato(Stato.bozza);
+
+        return documentoRepository.save(d);
     }
-
-    if (request.getTipoDocumentoId() == null) {
-        throw new RuntimeException("tipoDocumentoId mancante");
-    }
-
-    Utente u = utenteRepo.findById(request.getCreatoDaId())
-            .orElseThrow(() -> new RuntimeException("Utente non trovato"));
-
-    TipoDocumento td = tipoDocumentoRepo.findById(request.getTipoDocumentoId())
-            .orElseThrow(() -> new RuntimeException("Tipo documento non trovato"));
-
-    Documento d = new Documento();
-    d.setNome(request.getNome());
-    d.setTipo(request.getTipo());
-    d.setDescrizione(request.getDescrizione());
-    d.setStrutturaJson(request.getStrutturaJson());
-
-    d.setCreatoDa(u);
-    d.setTipoDocumento(td);
-    d.setStato(Stato.bozza);
-
-    return documentoRepository.save(d);
-}
 
     public void deleteDocumento(Long id) {
         documentoRepository.deleteById(id);
 
     }
-public Documento updateDocumento(Long id, DocumentoRequest request) {
 
-    Documento existing = documentoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Documento non trovato"));
+    public Documento updateDocumento(Long id, DocumentoRequest request) {
 
-    existing.setNome(request.getNome());
-    existing.setTipo(request.getTipo());
-    existing.setDescrizione(request.getDescrizione());
-    existing.setStrutturaJson(request.getStrutturaJson());
+        Documento existing = documentoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Documento non trovato"));
 
-    if (request.getCreatoDaId() != null) {
-        Utente u = utenteRepo.findById(request.getCreatoDaId())
-                .orElseThrow(() -> new RuntimeException("Utente non trovato"));
-        existing.setCreatoDa(u);
+        existing.setNome(request.getNome());
+        existing.setTipo(request.getTipo());
+        existing.setDescrizione(request.getDescrizione());
+        existing.setStrutturaJson(request.getStrutturaJson());
+
+        if (request.getTipoDocumentoId() != null) {
+            TipoDocumento td = tipoDocumentoRepo.findById(request.getTipoDocumentoId())
+                    .orElseThrow(() -> new RuntimeException("Tipo documento non trovato"));
+            existing.setTipoDocumento(td);
+        }
+
+        return documentoRepository.save(existing);
     }
-
-    if (request.getTipoDocumentoId() != null) {
-        TipoDocumento td = tipoDocumentoRepo.findById(request.getTipoDocumentoId())
-                .orElseThrow(() -> new RuntimeException("Tipo documento non trovato"));
-        existing.setTipoDocumento(td);
-    }
-
-    return documentoRepository.save(existing);
-}
 }
