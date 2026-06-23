@@ -41,82 +41,85 @@ import jakarta.servlet.http.HttpServletResponse;
 public class LoginController {
     @Autowired
     private UtenteService utenteService;
-    
+
     @Autowired
     private JwtService jwtService;
-    
+
     @Autowired
     private PasswordResetService passwordResetService;
-    
+
     private final CustomUserDetailsService userDetailsService;
-    public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;            
+
+    public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
+            CustomUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
     }
 
     @GetMapping("/user/{username}")
     public ResponseEntity<Utente> getUser(@PathVariable String username) {
         Utente utente = utenteService.getUserByUsername(username);
-		return ResponseEntity.ok(utente);
+        return ResponseEntity.ok(utente);
     }
-    
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) throws NoSuchAlgorithmException {
-    
- 
-        	System.out.println("utenteService: " + utenteService);
-        	boolean isValid  = utenteService.verifyUser(request.getEmail(), request.getPassword());
-            
-            //Utente utente = utenteService.verifyUser1(request.getUsername(), request.getPassword());
-            if (!isValid) {
-               // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenziali non valide");
-            	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"Invalid credentials\"}");
-            }   else {
-                // Recupero dettagli utente
-                UserDetails userDetails = userDetailsService.loadUserByEmail(request.getEmail());
 
-            	
-                // Generazione del token JWT
-                String token = JwtUtil.generateToken(userDetails);
+        System.out.println("utenteService: " + utenteService);
+        boolean isValid = utenteService.verifyUser(request.getEmail(), request.getPassword());
 
-                
-                
-                ResponseCookie jwtCookie = jwtService.createJwtCookie(token);
-                
-                // Risposta con il token
-                // return ResponseEntity.ok(new AuthResponse(token));
-       
-                // Endpoint per autenticare l'utente e restituire il token nel cookie
-//                return ResponseEntity.ok()
-//                        .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-//                        .body("Login successful");
-                
-                //return ResponseEntity.ok().body("{\"message\": \"Login successful\"}");
-                
-             // Crea un oggetto di risposta che contenga il token
-                AuthResponse response = new AuthResponse(token);
+        // Utente utente = utenteService.verifyUser1(request.getUsername(),
+        // request.getPassword());
+        if (!isValid) {
+            // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenziali non
+            // valide");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"Invalid credentials\"}");
+        } else {
+            // Recupero dettagli utente
+            UserDetails userDetails = userDetailsService.loadUserByEmail(request.getEmail());
 
-                // Restituisci la risposta con il token JWT
-                return ResponseEntity.ok().body(response); 
-            }     	
- 
-            
-        	  
-            // Autenticazione dell'utente
-//            authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-//            );     
+            // Generazione del token JWT
+            String token = JwtUtil.generateToken(userDetails);
 
-        	
-        	//se asterisco questo controllo mi rewstituisce il token!!
-            // Autenticazione dell'utente
-//            Authentication authentication = authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-//            );        	
-        	
-        	
+            ResponseCookie jwtCookie = jwtService.createJwtCookie(token);
 
-    } 
-    
+            // Risposta con il token
+            // return ResponseEntity.ok(new AuthResponse(token));
+
+            // Endpoint per autenticare l'utente e restituire il token nel cookie
+            // return ResponseEntity.ok()
+            // .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+            // .body("Login successful");
+
+            // return ResponseEntity.ok().body("{\"message\": \"Login successful\"}");
+
+            // Crea un oggetto di risposta che contenga il token
+            AuthResponse response = new AuthResponse(token);
+
+            // Restituisci la risposta con il token JWT
+            return ResponseEntity.ok().body(response);
+        }
+
+        // Autenticazione dell'utente
+        // authenticationManager.authenticate(
+        // new UsernamePasswordAuthenticationToken(request.getUsername(),
+        // request.getPassword())
+        // );
+
+        // se asterisco questo controllo mi rewstituisce il token!!
+        // Autenticazione dell'utente
+        // Authentication authentication = authenticationManager.authenticate(
+        // new UsernamePasswordAuthenticationToken(request.getUsername(),
+        // request.getPassword())
+        // );
+
+    }
+
+    @GetMapping("/user/email/{email}")
+    public ResponseEntity<Utente> getUserByEmail(@PathVariable String email) {
+        Utente utente = utenteService.getUserByEmail(email);
+        return ResponseEntity.ok(utente);
+    }
+
     @PostMapping("/test-logout")
     public ResponseEntity<Void> testLogout() {
         System.out.println("Test logout raggiunto");
@@ -159,20 +162,21 @@ public class LoginController {
         return ResponseEntity.ok("Logout eseguito con successo");
     }
 
-    
-    // Crea un endpoint in un controller per invalidare la sessione e rimuovere il cookie
+    // Crea un endpoint in un controller per invalidare la sessione e rimuovere il
+    // cookie
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
-    	String token = request.getHeader("Authorization");
+        String token = request.getHeader("Authorization");
         if (token != null) {
             // Logica per invalidare il token o sessione
             System.out.println("Token trovato: " + token);
-            // Logica per rimuovere il token (ad esempio, revoca o eliminazione della sessione)
+            // Logica per rimuovere il token (ad esempio, revoca o eliminazione della
+            // sessione)
         } else {
             System.out.println("Nessun token trovato");
-        }	
-    	
-    	// Invalida la sessione
+        }
+
+        // Invalida la sessione
         request.getSession().invalidate();
 
         // Rimuove il cookie di autenticazione
@@ -185,20 +189,20 @@ public class LoginController {
 
         // Rimuove il token JWT dall'header (se usi JWT)
         response.setHeader("Authorization", ""); // Cancella il token dal client
-        
+
         // Opzionale: Reindirizza alla homepage dopo il logout
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION, "/")
                 .build();
     }
-    
+
     // Nota. se uso un tipo string come corpo del messaggio :
     // allora uso POST /forgot-password?email=anna@email.com
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody UtenteRequest request, HttpServletRequest httpRequest) {
-    	 String email = request.getEmail();
-    	 passwordResetService.generatePasswordResetToken(email, httpRequest);
-   
+        String email = request.getEmail();
+        passwordResetService.generatePasswordResetToken(email, httpRequest);
+
         return ResponseEntity.ok("Reset link sent if email exists.");
     }
 
