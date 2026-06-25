@@ -36,6 +36,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/auth")
 public class LoginController {
@@ -49,6 +52,8 @@ public class LoginController {
     private PasswordResetService passwordResetService;
 
     private final CustomUserDetailsService userDetailsService;
+
+    private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
     public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
             CustomUserDetailsService userDetailsService) {
@@ -64,16 +69,30 @@ public class LoginController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) throws NoSuchAlgorithmException {
 
+        log.info("LOGIN START - email={}", request.getEmail());
+        log.info("VERIFY USER");
+
         System.out.println("utenteService: " + utenteService);
-        boolean isValid = utenteService.verifyUser(request.getEmail(), request.getPassword());
+
+        boolean isValid;
+        try {
+            isValid = utenteService.verifyUser(request.getEmail(), request.getPassword());
+        } catch (Exception e) {
+            log.warn("LOGIN FAILED - email={}", request.getEmail());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("{\"message\": \"Login error\"}");
+        }
+
 
         // Utente utente = utenteService.verifyUser1(request.getUsername(),
         // request.getPassword());
         if (!isValid) {
+            log.warn("LOGIN FAILED - email={}", request.getEmail());
             // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenziali non
             // valide");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"Invalid credentials\"}");
         } else {
+
             // Recupero dettagli utente
             UserDetails userDetails = userDetailsService.loadUserByEmail(request.getEmail());
 
@@ -92,6 +111,7 @@ public class LoginController {
 
             // return ResponseEntity.ok().body("{\"message\": \"Login successful\"}");
 
+            log.info("JWT GENERATED");
             // Crea un oggetto di risposta che contenga il token
             AuthResponse response = new AuthResponse(token);
 
