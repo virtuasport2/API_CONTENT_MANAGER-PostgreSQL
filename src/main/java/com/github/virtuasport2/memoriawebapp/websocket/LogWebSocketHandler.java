@@ -1,25 +1,37 @@
 package com.github.virtuasport2.memoriawebapp.websocket;
 
+import org.springframework.stereotype.Component;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+@Component
 public class LogWebSocketHandler extends TextWebSocketHandler {
 
-    private WebSocketSession session;
+    private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        this.session = session;
+        sessions.add(session);
     }
 
-    public void sendLog(String log) {
-        try {
-            if (session != null && session.isOpen()) {
-                session.sendMessage(new TextMessage(log));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) {
+        sessions.remove(session);
     }
-}
+
+public void send(String message) {
+    for (WebSocketSession session : sessions) {
+        try {
+            if (session.isOpen()) {
+                session.sendMessage(new TextMessage(message));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }           
+    }
+}}

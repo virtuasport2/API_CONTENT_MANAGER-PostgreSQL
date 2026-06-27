@@ -12,16 +12,15 @@ import com.github.virtuasport2.memoriawebapp.logging.WebSocketLogAppender;
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
 
-    @Bean
-    public LogWebSocketHandler logWebSocketHandler() {
-        LogWebSocketHandler handler = new LogWebSocketHandler();
-        WebSocketLogAppender.setWebSocketHandler(handler);
-        return new LogWebSocketHandler();
+    private final LogWebSocketHandler logWebSocketHandler;
+
+    public WebSocketConfig(LogWebSocketHandler logWebSocketHandler) {
+        this.logWebSocketHandler = logWebSocketHandler;
     }
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(logWebSocketHandler(), "/logs")
+        registry.addHandler(logWebSocketHandler, "/logs")
                 .setAllowedOrigins("*");
     }
-}
+}   

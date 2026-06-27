@@ -1,0 +1,18 @@
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d %-5level %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- AGGIUNTO WEB SOCKET APPENDER -->
+    <appender name="WEBSOCKET"
+              class="com.github.virtuasport2.memoriawebapp.logging.WebSocketLogAppender"/>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="WEBSOCKET"/>
+    </root>
+
+</configuration>

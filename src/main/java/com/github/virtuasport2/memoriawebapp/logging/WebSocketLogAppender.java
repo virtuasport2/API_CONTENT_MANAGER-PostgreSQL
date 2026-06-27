@@ -12,11 +12,17 @@ public class WebSocketLogAppender extends AppenderBase<ILoggingEvent> {
         webSocketHandler = handler;
     }
 
-    @Override
-    protected void append(ILoggingEvent eventObject) {
-        if (webSocketHandler != null) {
-            String logMessage = eventObject.getFormattedMessage();
-            webSocketHandler.sendLog(logMessage);
-        }
+@Override
+protected void append(ILoggingEvent event) {
+
+    String message = event.getFormattedMessage();
+
+    System.out.println("WS LOG: " + message);
+
+    if (webSocketHandler != null) {
+        webSocketHandler.send(message);
     }
+}
+
+    
 }

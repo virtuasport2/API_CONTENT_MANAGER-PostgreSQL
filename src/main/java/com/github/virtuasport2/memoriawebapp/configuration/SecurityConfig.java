@@ -66,6 +66,8 @@ public class SecurityConfig {
                                 "/api/documento")
                         .permitAll()
 
+                        .requestMatchers("/logs").permitAll() // permessi per il log con websocket
+                        
                         // Richiede che tutte le altre richieste siano eseguite da utenti autenticati
                         .anyRequest().authenticated()
 
