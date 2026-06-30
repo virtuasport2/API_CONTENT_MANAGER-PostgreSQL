@@ -1,6 +1,5 @@
 package com.github.virtuasport2.memoriawebapp.service;
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -25,10 +24,16 @@ public class JwtService {
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 ore
 
     private SecretKey getSignKey() {
+        System.out.println("JWT SECRET LOADED = " + secretKey.length()); /*
+                                                                          * secretkey per WebSocket:vedi
+                                                                          * JwtKeyGenerator.java
+                                                                          */
+        System.out.println("JWT=[" + secretKey + "]");
+        System.out.println("LEN=" + secretKey.length());
+        
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
- 
 
     // **Genera un JWT senza claims aggiuntivi**
     public String generateToken(String username) {
@@ -68,17 +73,18 @@ public class JwtService {
 
     // **Estrai un singolo claim generico**
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-    	final Claims claims = Jwts.parserBuilder()
-    		    .setSigningKey(getSignKey()) // Imposta la chiave di firma
-    		    .build()
-    		    .parseClaimsJws(token) // Parsea il token
-    		    .getBody();
+        final Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSignKey()) // Imposta la chiave di firma
+                .build()
+                .parseClaimsJws(token) // Parsea il token
+                .getBody();
 
         return claimsResolver.apply(claims);
     }
-    
-// Configurare il Cookie HttpOnly  - Creazione del cookie con il token JWT.
-// Al momento del login, dopo aver generato il token JWT, memorizzalo in un cookie
+
+    // Configurare il Cookie HttpOnly - Creazione del cookie con il token JWT.
+    // Al momento del login, dopo aver generato il token JWT, memorizzalo in un
+    // cookie
     public ResponseCookie createJwtCookie(String jwt) {
         return ResponseCookie.from("jwt", jwt)
                 .httpOnly(true)
@@ -87,5 +93,5 @@ public class JwtService {
                 .maxAge(Duration.ofDays(7))
                 .sameSite("Strict")
                 .build();
-    } 
+    }
 }

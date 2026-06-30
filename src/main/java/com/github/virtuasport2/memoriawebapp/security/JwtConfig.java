@@ -6,17 +6,18 @@ import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 public class JwtConfig {
     
     //private static final String SECRET_KEY = "supersecretkey12345678901234567890"; // Minimo 32 byte
 
     @Value("${jwt.secret}")
-    private static String secretKey;// Recupera la chiave segreta da application.properties
+    private String secretKey;// Recupera la chiave segreta da application.properties
 	
     // Creazione della chiave HMAC in modo sicuro
-    public static Key getSigningKey() {
+    public  Key getSigningKey() {
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }

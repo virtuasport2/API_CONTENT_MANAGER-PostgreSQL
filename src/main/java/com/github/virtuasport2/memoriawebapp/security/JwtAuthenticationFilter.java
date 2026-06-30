@@ -13,9 +13,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.github.virtuasport2.memoriawebapp.service.JwtService;
 
 import java.io.IOException;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,10 +23,8 @@ import org.slf4j.LoggerFactory;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-
-	
     @Autowired
-    private JwtUtil jwtUtil;
+    private JwtService jwtService;
 
     @Autowired
     private CustomUserDetailsService userDetailsService;
@@ -36,40 +34,37 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-    	System.out.println("JWT Auth nel SecurityContext: " + SecurityContextHolder.getContext().getAuthentication());
+        System.out.println("JWT Auth nel SecurityContext: " + SecurityContextHolder.getContext().getAuthentication());
 
-    	logger.debug("Inizio doFilterInternal per URI: " + request.getRequestURI());
-  
-//        // Se la richiesta è per il logout, bypassa il filtro JWT e termina immediatamente
-//        if (request.getRequestURI().equals("/api/auth/logout")) {
-//            logger.debug("Richiesta di logout, bypassando il filtro JWT");
-//            // Esegui le operazioni di logout, come la rimozione del cookie JWT
-//            Cookie cookie = new Cookie("JWT", null);
-//            cookie.setHttpOnly(true);
-//            cookie.setSecure(true);  // Se HTTPS
-//            cookie.setMaxAge(0);  // Scade subito
-//            cookie.setPath("/");
-//            response.addCookie(cookie);
-//
-//            // 2. Pulisci il SecurityContext
-//            SecurityContextHolder.clearContext();  // Rimuove l'autenticazione dal contesto di sicurezza
-//
-//            // 3. Invalida la sessione HTTP
-//            request.getSession().invalidate();  // Invalida la sessione HTTP, se esistente            
-//            
-//            // Imposta la risposta a OK (esito del logout)
-//            response.setStatus(HttpServletResponse.SC_OK);
-//            return;  // Non proseguire con il prossimo filtro (non passiamo al filtro JWT)
-//        }        
-        
-        
-        
-        
-        
-        
+        logger.debug("Inizio doFilterInternal per URI: " + request.getRequestURI());
+
+        // // Se la richiesta è per il logout, bypassa il filtro JWT e termina
+        // immediatamente
+        // if (request.getRequestURI().equals("/api/auth/logout")) {
+        // logger.debug("Richiesta di logout, bypassando il filtro JWT");
+        // // Esegui le operazioni di logout, come la rimozione del cookie JWT
+        // Cookie cookie = new Cookie("JWT", null);
+        // cookie.setHttpOnly(true);
+        // cookie.setSecure(true); // Se HTTPS
+        // cookie.setMaxAge(0); // Scade subito
+        // cookie.setPath("/");
+        // response.addCookie(cookie);
+        //
+        // // 2. Pulisci il SecurityContext
+        // SecurityContextHolder.clearContext(); // Rimuove l'autenticazione dal
+        // contesto di sicurezza
+        //
+        // // 3. Invalida la sessione HTTP
+        // request.getSession().invalidate(); // Invalida la sessione HTTP, se esistente
+        //
+        // // Imposta la risposta a OK (esito del logout)
+        // response.setStatus(HttpServletResponse.SC_OK);
+        // return; // Non proseguire con il prossimo filtro (non passiamo al filtro JWT)
+        // }
+
         // Inizializza la variabile per il token JWT a null
         String token = null;
-        
+
         // Prova a estrarre il token dai cookie presenti nella richiesta
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -83,11 +78,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        
-        
-  
-        
-        
         // Se il token non è stato trovato nei cookie, cerca nell'header Authorization
         if (token == null) {
             // Recupera il valore dell'header "Authorization"
@@ -99,67 +89,73 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-       
-        
         // Se il token è stato trovato e lo si vuole invalidare (logout)
         if (token != null && request.getRequestURI().equals("/api/auth/logout")) {
             TokenBlacklist.addToBlacklist(token); // Aggiungi il token alla blacklist
             System.out.println("Token invalidated and added to blacklist: " + token);
-           
+
             // Pulisci il SecurityContext
             SecurityContextHolder.clearContext();
- 
+
             response.setStatus(HttpServletResponse.SC_OK);
             return;
         }
 
- 
-        
-        
-        
         // Se il token è nella blacklist, impedisci l'accesso
         if (token != null && TokenBlacklist.isBlacklisted(token)) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);  // Token non valido
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // Token non valido
             return;
-        }        
-        
-        
-        // Se è stato trovato un token (sia dai cookie che dall'header), procede con la validazione
-        if (token != null) {
-            try {
-                // Utilizza jwtUtil per estrarre il nome utente dal token
-                String username = jwtUtil.extractUsername(token);
-                
-                // Se il nome utente è stato estratto e non esiste già un'autenticazione nel SecurityContext
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    // Carica i dettagli dell'utente usando il servizio dedicato (es. dal database)
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    
-                    // Valida il token confrontandolo con i dettagli dell'utente
-                    if (jwtUtil.validateToken(token, userDetails)) {
-                        // Crea un oggetto di autenticazione con i ruoli e le credenziali dell'utente
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                        
-                        // Imposta l'autenticazione nel contesto di sicurezza di Spring
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-                        System.out.println("🔐 Authentication impostata nel SecurityContext: " + authToken);
-                        System.out.println("JWT Auth nel SecurityContext: " + SecurityContextHolder.getContext().getAuthentication());
-                    }
-                }
-            } catch (UsernameNotFoundException e) {
-                // Se l'utente non viene trovato, registra l'errore
-                logger.error("Utente non trovato per il token JWT", e);
-            } catch (Exception e) {
-                // Gestisce eventuali altri errori nella gestione o validazione del token
-                logger.error("Errore nella gestione del token JWT", e);
+        }
+
+// Se è stato trovato un token (sia dai cookie che dall'header), procede con la validazione
+if (token != null) {
+    try {
+
+        // Utilizza jwtService per estrarre il nome utente dal token
+        String username = jwtService.extractUsername(token);
+
+        // Se il nome utente è stato estratto e non esiste già un'autenticazione nel SecurityContext
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            // Carica i dettagli dell'utente usando il servizio dedicato (es. dal database)
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            // Valida il token confrontandolo con il nome utente
+            if (jwtService.isTokenValid(token, username)) {
+
+                // Crea un oggetto di autenticazione con i ruoli e le credenziali dell'utente
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+
+                // Imposta l'autenticazione nel contesto di sicurezza di Spring
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                System.out.println("🔐 Authentication impostata nel SecurityContext: " + authToken);
+                System.out.println("JWT Auth nel SecurityContext: "
+                        + SecurityContextHolder.getContext().getAuthentication());
             }
         }
-        
-        // Prosegue con la catena dei filtri, indipendentemente dalla presenza o validità del token
+
+    } catch (UsernameNotFoundException e) {
+        // Se l'utente non viene trovato, registra l'errore
+        logger.error("Utente non trovato per il token JWT", e);
+
+    } catch (Exception e) {
+        // Gestisce eventuali altri errori nella gestione o validazione del token
+        logger.error("Errore nella gestione del token JWT", e);
+    }
+}
+
+        // Prosegue con la catena dei filtri, indipendentemente dalla presenza o
+        // validità del token
         chain.doFilter(request, response);
         System.out.println("Filtro: richiesta inoltrata al controller");
     }
+
     private boolean validateToken(String token) {
         // Implementa la logica per validare il token (es. tramite JwtUtil)
         return true;

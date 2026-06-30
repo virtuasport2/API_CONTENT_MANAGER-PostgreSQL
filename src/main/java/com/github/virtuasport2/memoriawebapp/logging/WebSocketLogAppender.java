@@ -2,27 +2,26 @@ package com.github.virtuasport2.memoriawebapp.logging;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import com.github.virtuasport2.memoriawebapp.websocket.LogWebSocketHandler;
 
+import org.springframework.stereotype.Component;
+import com.github.virtuasport2.memoriawebapp.websocket.LogWebSocketHandler;
+import com.github.virtuasport2.memoriawebapp.websocket.WebSocketHandlerHolder;
+import com.github.virtuasport2.memoriawebapp.websocket.WebSocketRegistry;
+
+@Component
 public class WebSocketLogAppender extends AppenderBase<ILoggingEvent> {
 
-    private static LogWebSocketHandler webSocketHandler;
+    private LogWebSocketHandler handler;
 
-    public static void setWebSocketHandler(LogWebSocketHandler handler) {
-        webSocketHandler = handler;
+    public void setWebSocketHandler(LogWebSocketHandler handler) {
+        this.handler = handler;
     }
 
-@Override
-protected void append(ILoggingEvent event) {
-
-    String message = event.getFormattedMessage();
-
-    System.out.println("WS LOG: " + message);
-
-    if (webSocketHandler != null) {
-        webSocketHandler.send(message);
+    @Override
+    protected void append(ILoggingEvent event) {
+        LogWebSocketHandler h = WebSocketHandlerHolder.get();
+        if (h != null) {
+            h.send(event.getFormattedMessage());
+        }
     }
-}
-
-    
 }

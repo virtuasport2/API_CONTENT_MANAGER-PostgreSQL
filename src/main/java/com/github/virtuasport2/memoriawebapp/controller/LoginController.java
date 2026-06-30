@@ -31,6 +31,7 @@ import com.github.virtuasport2.memoriawebapp.security.TokenBlacklist;
 import com.github.virtuasport2.memoriawebapp.service.JwtService;
 import com.github.virtuasport2.memoriawebapp.service.PasswordResetService;
 import com.github.virtuasport2.memoriawebapp.service.UtenteService;
+import com.github.virtuasport2.memoriawebapp.websocket.LogWebSocketHandler;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,10 +56,14 @@ public class LoginController {
 
     private static final Logger log = LoggerFactory.getLogger(LoginController.class);
 
-    public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
-            CustomUserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+    private final LogWebSocketHandler logWebSocketHandler;
+
+        public LoginController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
+                CustomUserDetailsService userDetailsService,LogWebSocketHandler logWebSocketHandler) {
+            this.userDetailsService = userDetailsService;
+
+            this.logWebSocketHandler = logWebSocketHandler;
+        }
 
     @GetMapping("/user/{username}")
     public ResponseEntity<Utente> getUser(@PathVariable String username) {
@@ -68,6 +73,8 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) throws NoSuchAlgorithmException {
+
+        logWebSocketHandler.send("TEST DAL CONTROLLER");
 
         log.info("LOGIN START - email={}", request.getEmail());
         log.info("VERIFY USER");
